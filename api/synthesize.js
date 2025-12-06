@@ -1,7 +1,6 @@
-import fetch from 'node-fetch'; // 1. Dependency import
+import fetch from 'node-fetch';
 
-// 2. Vercel Serverless function export style
-export default async function (req, res) { 
+export default async function (req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
   
   if (!req.body) {
@@ -10,16 +9,16 @@ export default async function (req, res) {
 
   const { text, style, breath, pause } = req.body;
 
-  // 3. Convert user inputs to SSML-like hints
+  // Convert user inputs to SSML-like hints
   let ssml = text;
   if (breath) ssml = ssml.replace(/\,/g, ', <breath/>');
   if (pause === 'short') ssml = ssml.replace(/\./g, '. <break time="300ms"/>');
   if (pause === 'long') ssml = ssml.replace(/\./g, '. <break time="800ms"/>');
 
   try {
-    // 4. API Call
     const HF_TOKEN = process.env.HF_TOKEN; 
-    const MODEL_ENDPOINT = 'https://api-inference.huggingface.co/models/coqui/XTTS-v2'; // Hindi TTS Model
+    // Hindi TTS Model Endpoint
+    const MODEL_ENDPOINT = 'https://api-inference.huggingface.co/models/coqui/XTTS-v2';
 
     const hfRes = await fetch(MODEL_ENDPOINT, {
       method: 'POST',
@@ -27,7 +26,7 @@ export default async function (req, res) {
         'Authorization': `Bearer ${HF_TOKEN}`,
         'Content-Type': 'application/json'
       },
-      // 5. Model Parameters (Crucial for XTTS Hindi Voice)
+      // Model Parameters (Crucial for XTTS Hindi Voice)
       body: JSON.stringify({
         inputs: ssml,
         parameters: { 
@@ -40,10 +39,11 @@ export default async function (req, res) {
     if (!hfRes.ok) {
       const txt = await hfRes.text();
       console.error("HF Error:", txt);
-      return res.status(500).send('Model error: ' + txt);
+      // Detailed error message will be shown in Vercel logs
+      return res.status(500).send('Model error: ' + txt); 
     }
 
-    // 6. Return Audio
+    // Return Audio
     const arrayBuffer = await hfRes.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     res.setHeader('Content-Type', 'audio/wav');
@@ -51,6 +51,6 @@ export default async function (req, res) {
 
   } catch (err) {
     console.error("Catch Error:", err);
-    res.status(500).send('Server error. Please check Vercel Logs.');
+    res.status(500).send('Server error. Final try.');
   }
 }
