@@ -1,0 +1,12 @@
+{
+  "name": "fitam-voice-api",
+  "version": "1.0.0",
+  "description": "Backend API for Fitam Voice Generator",
+  "main": "api/synthesize.js",
+  "scripts": {
+    "start": "node api/synthesize.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7" 
+  }
+}
