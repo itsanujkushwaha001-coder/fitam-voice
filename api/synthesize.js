@@ -7,18 +7,14 @@ export default async function (req, res) {
       return res.status(400).send('Bad Request: Missing body');
   }
 
-  const { text, style, breath, pause } = req.body;
+  const { text } = req.body; // Ab sirf 'text' use kar rahe hain, 'style, breath, pause' nahi
 
-  // Convert user inputs to SSML-like hints
-  let ssml = text;
-  if (breath) ssml = ssml.replace(/\,/g, ', <breath/>');
-  if (pause === 'short') ssml = ssml.replace(/\./g, '. <break time="300ms"/>');
-  if (pause === 'long') ssml = ssml.replace(/\./g, '. <break time="800ms"/>');
+  // SSML tags ko hata diya gaya hai, taaki model ko sirf seedha text mile.
 
   try {
     const HF_TOKEN = process.env.HF_TOKEN; 
     
-    // FINAL MODEL ENDPOINT FIX: Using Facebook MMS (More Stable Model)
+    // FINAL WORKING MODEL ENDPOINT: Facebook MMS - Stable aur simple text support karta hai
     const MODEL_ENDPOINT = 'https://router.huggingface.co/models/facebook/mms-tts-hin';
 
     const hfRes = await fetch(MODEL_ENDPOINT, {
@@ -27,9 +23,9 @@ export default async function (req, res) {
         'Authorization': `Bearer ${HF_TOKEN}`,
         'Content-Type': 'application/json'
       },
-      // FINAL BODY FIX: MMS model sirf inputs use karta hai
+      // FINAL BODY FIX: MMS model sirf seedha text leta hai
       body: JSON.stringify({
-        inputs: ssml
+        inputs: text 
       })
     });
 
