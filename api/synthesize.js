@@ -27,14 +27,9 @@ const MODEL_ENDPOINT = 'https://router.huggingface.co/models/espnet/kan-bayashi_
         'Content-Type': 'application/json'
       },
       // Model Parameters (Crucial for XTTS Hindi Voice)
-      body: JSON.stringify({
-        inputs: ssml,
-        parameters: { 
-            speaker: "Vikram", // Fixed Speaker Name for Hindi
-            language: "hi" 
-        }
+body: JSON.stringify({
+        inputs: ssml
       })
-    });
 
     if (!hfRes.ok) {
       const txt = await hfRes.text();
