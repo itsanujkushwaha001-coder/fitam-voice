@@ -18,7 +18,7 @@ export default async function (req, res) {
   try {
     const HF_TOKEN = process.env.HF_TOKEN; 
     // Hindi TTS Model Endpoint
-    const MODEL_ENDPOINT = 'https://router.huggingface.co/models/coqui/XTTS-v2';
+const MODEL_ENDPOINT = 'https://router.huggingface.co/models/espnet/kan-bayashi_ljspeech_vits';
 
     const hfRes = await fetch(MODEL_ENDPOINT, {
       method: 'POST',
