@@ -1,0 +1,42 @@
+const textEl = document.getElementById('text');
+const styleEl = document.getElementById('style');
+const breathEl = document.getElementById('breath');
+const pauseEl = document.getElementById('pause');
+const player = document.getElementById('player');
+const downloadLink = document.getElementById('downloadLink');
+
+
+function insertAtCursor(textToInsert){
+const start = textEl.selectionStart;
+const end = textEl.selectionEnd;
+const text = textEl.value;
+textEl.value = text.slice(0,start) + textToInsert + text.slice(end);
+}
+
+
+document.getElementById('insertBreath').onclick = ()=> insertAtCursor(' <breath/> ');
+document.getElementById('insertPause').onclick = ()=> insertAtCursor(' <break time="300ms"/> ');
+
+
+async function generate(){
+const text = textEl.value.trim();
+if(!text) return alert('Text likho pehle');
+const payload = {
+text,
+style: styleEl.value,
+breath: breathEl.checked,
+pause: pauseEl.value
+};
+// Call your serverless function
+const res = await fetch('/api/synthesize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+if(!res.ok) return alert('Error generating audio');
+const blob = await res.blob();
+
+
+const url = URL.createObjectURL(blob);
+player.src = url;
+downloadLink.href = url;
+}
+
+
+document.getElementById('generate').onclick = generate;

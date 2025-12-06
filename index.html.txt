@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fitam — Voice Generator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+<h1>Fitam — Real Hindi Voice</h1>
+<textarea id="text" placeholder="Yahan likho..." rows="6"></textarea>
+
+
+<div class="controls">
+<label>Style:
+<select id="style">
+<option value="neutral">Normal</option>
+<option value="happy">Smile / Happy</option>
+<option value="whisper">Whisper</option>
+<option value="horror">Horror / Creepy</option>
+</select>
+</label>
+
+
+<label>Breath:
+<input type="checkbox" id="breath" checked>
+</label>
+
+
+<label>Pause length:
+<select id="pause">
+<option value="none">None</option>
+<option value="short">Short (300ms)</option>
+<option value="long">Long (800ms)</option>
+</select>
+</label>
+</div>
+
+
+<div class="buttons">
+<button id="insertBreath">Insert Breath</button>
+<button id="insertPause">Insert Pause</button>
+<button id="generate">Generate Voice</button>
+</div>
+
+
+<audio id="player" controls></audio>
+<a id="downloadLink" download="fitam_output.wav">Download Audio</a>
+</div>
+
+
+<script src="main.js"></script>
+</body>
+</html>
