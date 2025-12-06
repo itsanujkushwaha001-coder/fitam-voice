@@ -9,12 +9,10 @@ export default async function (req, res) {
 
   const { text } = req.body; // Ab sirf 'text' use kar rahe hain
 
-  // SSML tags ko hata diya gaya hai, taaki model ko sirf seedha text mile.
-
   try {
     const HF_TOKEN = process.env.HF_TOKEN; 
     
-    // FINAL WORKING MODEL ENDPOINT: Facebook MMS
+    // FINAL WORKING MODEL ENDPOINT: Facebook MMS - Stable model
     const MODEL_ENDPOINT = 'https://router.huggingface.co/models/facebook/mms-tts-hin';
 
     const hfRes = await fetch(MODEL_ENDPOINT, {
@@ -22,7 +20,7 @@ export default async function (req, res) {
       headers: {
         'Authorization': `Bearer ${HF_TOKEN}`,
         'Content-Type': 'application/json',
-        'Accept': 'audio/flac' // <--- YEH FINAL LINE ADD KI GAYI HAI
+        'Accept': 'audio/flac' // <--- Final Header Fix
       },
       // FINAL BODY FIX: MMS model sirf seedha text leta hai
       body: JSON.stringify({
