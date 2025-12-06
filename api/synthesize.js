@@ -17,8 +17,9 @@ export default async function (req, res) {
 
   try {
     const HF_TOKEN = process.env.HF_TOKEN; 
-    // Hindi TTS Model Endpoint
-const MODEL_ENDPOINT = 'https://router.huggingface.co/models/espnet/kan-bayashi_ljspeech_vits';
+    
+    // FINAL MODEL ENDPOINT FIX: Using router and stable model for simple call
+    const MODEL_ENDPOINT = 'https://router.huggingface.co/models/coqui/XTTS-v2';
 
     const hfRes = await fetch(MODEL_ENDPOINT, {
       method: 'POST',
@@ -26,15 +27,15 @@ const MODEL_ENDPOINT = 'https://router.huggingface.co/models/espnet/kan-bayashi_
         'Authorization': `Bearer ${HF_TOKEN}`,
         'Content-Type': 'application/json'
       },
-      // Model Parameters (Crucial for XTTS Hindi Voice)
-body: JSON.stringify({
+      // FINAL BODY FIX: XTTS ko call karne ke liye sirf inputs use kar rahe hain
+      body: JSON.stringify({
         inputs: ssml
       })
+    });
 
     if (!hfRes.ok) {
       const txt = await hfRes.text();
       console.error("HF Error:", txt);
-      // Detailed error message will be shown in Vercel logs
       return res.status(500).send('Model error: ' + txt); 
     }
 
