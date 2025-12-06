@@ -1,64 +1,56 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch'; // 1. Dependency import
 
-module.exports = async (req,res) => {
-  if(req.method !== 'POST') return res.status(405).send('Method not allowed');
+// 2. Vercel Serverless function export style
+export default async function (req, res) { 
+  if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+  
+  if (!req.body) {
+      return res.status(400).send('Bad Request: Missing body');
+  }
+
   const { text, style, breath, pause } = req.body;
 
-  // 1. Convert user inputs to SSML-like hints for the model
+  // 3. Convert user inputs to SSML-like hints
   let ssml = text;
-  
-  // Breaths and Pauses handling
-  if(breath) ssml = ssml.replace(/\,/g, ', <breath/>');
-  if(pause === 'short') ssml = ssml.replace(/\./g, '. <break time="300ms"/>');
-  if(pause === 'long') ssml = ssml.replace(/\./g, '. <break time="800ms"/>');
-
-  // Add style markers (simple handling for VITS/XTTS like models)
-  // Note: XTTS often handles emotion via specific tags or speaker reference, 
-  // but we'll use a basic structure.
-  
-  // NOTE: For XTTS/VITS, style mapping is complex. We are sending text directly 
-  // and hoping the JS logic for breath/pause works. We remove generic style tag 
-  // as it often breaks the inference API for open models.
+  if (breath) ssml = ssml.replace(/\,/g, ', <breath/>');
+  if (pause === 'short') ssml = ssml.replace(/\./g, '. <break time="300ms"/>');
+  if (pause === 'long') ssml = ssml.replace(/\./g, '. <break time="800ms"/>');
 
   try {
-    // 2. Call HuggingFace Inference API with the correct model endpoint
-    const HF_TOKEN = process.env.HF_TOKEN; // Vercel se automatic lega
-    
-    // IMPORTANT: Hindi TTS Model EndPoint FIX
-    const MODEL_ENDPOINT = 'https://api-inference.huggingface.co/models/coqui/XTTS-v2';
+    // 4. API Call
+    const HF_TOKEN = process.env.HF_TOKEN; 
+    const MODEL_ENDPOINT = 'https://api-inference.huggingface.co/models/coqui/XTTS-v2'; // Hindi TTS Model
 
     const hfRes = await fetch(MODEL_ENDPOINT, {
       method: 'POST',
-      headers: { 
-          'Authorization': `Bearer ${HF_TOKEN}`, 
-          'Content-Type': 'application/json' 
+      headers: {
+        'Authorization': `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json'
       },
-      // XTTS/VITS often takes metadata + text. Here we are using simplified 
-      // input that mostly relies on SSML embedded in the text.
-      body: JSON.stringify({ 
-          inputs: ssml, 
-          parameters: { 
-              // Example parameter to control voice or language, often required by XTTS
-              // Check the specific model documentation on HuggingFace for correct parameters
-              speaker: "Hindi Male/Female Voice Name", // Placeholder: use a real voice name if specified by XTTS
-              language: "hi" // Hindi language code
-          }
+      // 5. Model Parameters (Crucial for XTTS Hindi Voice)
+      body: JSON.stringify({
+        inputs: ssml,
+        parameters: { 
+            speaker: "Vikram", // Fixed Speaker Name for Hindi
+            language: "hi" 
+        }
       })
     });
 
-    if(!hfRes.ok){
+    if (!hfRes.ok) {
       const txt = await hfRes.text();
-      // Yahan Model ka error dikhega Vercel logs mein
+      console.error("HF Error:", txt);
       return res.status(500).send('Model error: ' + txt);
     }
 
+    // 6. Return Audio
     const arrayBuffer = await hfRes.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    res.setHeader('Content-Type','audio/wav');
+    res.setHeader('Content-Type', 'audio/wav');
     res.send(buffer);
-    
-  } catch(err){
-    console.error(err);
-    res.status(500).send('Server error. Check Vercel logs.');
+
+  } catch (err) {
+    console.error("Catch Error:", err);
+    res.status(500).send('Server error. Please check Vercel Logs.');
   }
 }
